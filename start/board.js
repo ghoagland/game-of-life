@@ -1,8 +1,8 @@
 /**
  * Given a width and height, construct a Board.
- * 
- * @param {Int} width 
- * @param {Int} height 
+ *
+ * @param {Int} width
+ * @param {Int} height
  * @param {Array<Int>} cells the array to use for the cells (default: new Uint8Array(width * height))
  */
 function Board(width=32, height=32, cells) {
@@ -21,7 +21,7 @@ function Board(width=32, height=32, cells) {
 
 /**
  * indexFor(coords: [row: int, col: int]) -> int
- * 
+ *
  * Given an array of coordinates [row, col], return the index of that cell in this
  * board's cells array.
  */
@@ -32,17 +32,17 @@ Board.prototype.indexFor = function([row, col]) {
   // two elements, and names them row and col. Any other elements
   // are ignored.
   //
-  // http://2ality.com/2015/01/es6-destructuring.html  
-  
+  // http://2ality.com/2015/01/es6-destructuring.html
+
   // Return undefined if we're out of bounds
   if (row < 0 || row >= this.height || col < 0 || col >= this.width)
-    return  
+    return
   return row * this.width + col
 }
 
 /**
  * get(coords: [row: int, col: int]) -> uint8
- * 
+ *
  * Get the value of the board at coords.
  */
 Board.prototype.get = function (coords) {
@@ -51,25 +51,46 @@ Board.prototype.get = function (coords) {
 
 /**
  * set(coords: [row: int, col: int], value: uint8)
- * 
+ *
  * Set the value of the board at coords to value.
  */
 Board.prototype.set = function(coords, value) {
-  // TODO
+  this.cells[this.indexFor(coords)] = value;
 }
 
 /**
  * livingNeighbors(coords: [row: int, col: int])
- * 
+ *
  * Return the count of living neighbors around a given coordinate.
  */
 Board.prototype.livingNeighbors = function([row, col]) {
   // TODO: Return the count of living neighbors.
+  var t = this.indexFor([row, col]);
+  var w = this.width;
+  var counter = 0;
+
+  var arrOfNeighbors = [this.cells[t - w - 1], this.cells[t - w], this.cells[t - w + 1],
+                        this.cells[t - 1], this.cells[t + 1],
+                        this.cells[t + w - 1], this.cells[t + w], this.cells[t + w + 1]];
+  if (row === 0) {
+    arrOfNeighbors = arrOfNeighbors.slice(3);
+  } else if (row === this.height - 1) {
+    arrOfNeighbors = arrOfNeighbors.slice(0,5);
+  }
+  //need to rework for edge cases, corners
+
+
+  for (var i = 0; i < arrOfNeighbors.length; i++) {
+    if (arrOfNeighbors[i]) {
+      counter++;
+    }
+  }
+  return counter;
 }
 
 /**
  * toggle(coords: [row: int, col: int])
- * 
+ *
  * Toggle the cell at coords from alive to dead or vice versa.
  */
 Board.prototype.toggle = function(coords) {
@@ -78,10 +99,10 @@ Board.prototype.toggle = function(coords) {
 
 /**
  * Give the vitals of a cell (its current state, and how many living neighbors it
- * currently has), return whether it will be alive in the next tick. 
- * 
- * @param {Boolean} isAlive 
- * @param {Number} numLivingNeighbors 
+ * currently has), return whether it will be alive in the next tick.
+ *
+ * @param {Boolean} isAlive
+ * @param {Number} numLivingNeighbors
  */
 function conway(isAlive, numLivingNeighbors) {
   // TODO
@@ -90,8 +111,8 @@ function conway(isAlive, numLivingNeighbors) {
 /**
  * Given a present board, a future board, and a rule set, apply
  * the rules to the present and modify the future.
- * 
- * @param {Board} present 
+ *
+ * @param {Board} present
  * @param {Board!} future (is mutated)
  * @param {(Boolean, Int) -> Boolean} rules (default: conway)
  */
