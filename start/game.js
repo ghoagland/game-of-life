@@ -67,6 +67,19 @@ function Life(container, width=12, height=12) {
     // HINT:
     //   https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
     //   https://developer.mozilla.org/en-US/docs/Web/API/Element/getElementsByTagName
+    var tableElements = [].slice.call(document.getElementsByTagName("td"));
+    console.log(tableElements);
+    for (var i = 0; i < tableElements.length; i++) {
+      if(present.get(tableElements[i].coord) !== future.get(tableElements[i].coord)) {
+        let hasAliveClass = tableElements[i].classList.toString().match("alive") === "alive";
+
+        if (hasAliveClass) {
+          tableElements[i].classList.remove("alive");
+        } else {
+          tableElements[i].classList.add("alive");
+        }
+      }
+    }
   }
 
   function step() {
