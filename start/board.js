@@ -64,28 +64,18 @@ Board.prototype.set = function(coords, value) {
  * Return the count of living neighbors around a given coordinate.
  */
 Board.prototype.livingNeighbors = function([row, col]) {
-  // TODO: Return the count of living neighbors.
-  var t = this.indexFor([row, col]);
-  var w = this.width;
-  var counter = 0;
-
-  var arrOfNeighbors = [this.cells[t - w - 1], this.cells[t - w], this.cells[t - w + 1],
-                        this.cells[t - 1], this.cells[t + 1],
-                        this.cells[t + w - 1], this.cells[t + w], this.cells[t + w + 1]];
-  if (row === 0) {
-    arrOfNeighbors = arrOfNeighbors.slice(3);
-  } else if (row === this.height - 1) {
-    arrOfNeighbors = arrOfNeighbors.slice(0,5);
-  }
-  //need to rework for edge cases, corners
-
-
-  for (var i = 0; i < arrOfNeighbors.length; i++) {
-    if (arrOfNeighbors[i]) {
-      counter++;
+  var count = 0;
+  //Min: row: [row-1,0] col: [col-1, 0]
+  //Max: [row+1, ht] [col+1, width]
+  for(var i=Math.max(row-1,0); i<=Math.min(row+1, this.height); i++){
+    for(var j=Math.max(col-1,0); j<=Math.min(col+1, this.width); j++){
+      if(!(i===row && j === col)){
+        if(this.cells[this.indexFor([i,j])])
+          count++;
+      }
     }
   }
-  return counter;
+  return count;
 }
 
 /**
@@ -94,7 +84,12 @@ Board.prototype.livingNeighbors = function([row, col]) {
  * Toggle the cell at coords from alive to dead or vice versa.
  */
 Board.prototype.toggle = function(coords) {
-  // TODO
+  if(this.get(coords)){
+    this.set(coords,false);
+  }
+  else{
+    this.set(coords,true);
+  }
 }
 
 /**
@@ -106,6 +101,23 @@ Board.prototype.toggle = function(coords) {
  */
 function conway(isAlive, numLivingNeighbors) {
   // TODO
+//   Any live cell with two or three live neighbors lives on to the next generation.
+// Any live cell with fewer than two live neighbors dies, as if caused by under-population.
+// Any live cell with more than three live neighbors dies, as if by overcrowding.
+// Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+
+  if (isAlive) {
+    if(numLivingNeighbors < 2 || numLivingNeighbors > 3) {
+      isAlive = false;
+    } else {
+      isAlive = true;
+    }
+  } else {
+    if(numLivingNeighbors === 3) {
+      isAlive = true;
+    }
+  }
+  return isAlive;
 }
 
 /**
@@ -118,5 +130,15 @@ function conway(isAlive, numLivingNeighbors) {
  */
 function tick(present, future, rules=conway) {
   // TODO
+  for(var i = 0; i < present.cells.length; i++) {
+    var row = Math.floor(i / present.width)
+    var col = i % present.width;
+
+    var currentVal = present.get([row,col]);
+    var neighbors = present.livingNeighbors([row, col]);
+
+    future.set([row, col], rules(currentVal, neighbors));
+  }
+
   return [future, present]
 }
